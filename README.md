@@ -91,16 +91,13 @@ Easy as that!
 
 ### Authenticating with custom response body
 
-If you want using custom unauthorized response you can pass `custom_response` in configuration like:
+If you want using custom unauthorized response you can pass `custom_response`:
 
 ```elixir
-
-config :your_app, your_config: [
-    username: "admin",
-    password: "simple_password",
-    realm: "Admin Area",
+plug BasicAuth,
+    use_config: {:your_app, :your_config},
     custom_response: &YouApp.Helpers.unauthorized_response/1
-  ]
+
 ```
 
 or

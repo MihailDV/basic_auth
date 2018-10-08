@@ -13,6 +13,10 @@ defmodule BasicAuth.ConfiguredTest do
     use DemoPlug, use_config: {:basic_auth, :my_auth}
   end
 
+  defmodule SimplePlugWithCustomResponse do
+    use DemoPlug, use_config: {:basic_auth, :my_auth}, custom_response: &custom_response/1
+  end
+
   setup do
     Application.delete_env(:basic_auth, :my_auth)
     :ok
@@ -77,9 +81,7 @@ defmodule BasicAuth.ConfiguredTest do
     end
 
     test "unauthorised with custom response return a 401 and custom header and body" do
-      Application.put_env(:basic_auth, :my_auth, custom_response: &custom_response/1)
-
-      conn = call_without_credentials(SimplePlug)
+      conn = call_without_credentials(SimplePlugWithCustomResponse)
 
       assert conn.status == 401
       assert Plug.Conn.get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]

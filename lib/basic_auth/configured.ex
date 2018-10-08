@@ -5,12 +5,16 @@ defmodule BasicAuth.Configured do
 
   import BasicAuth.Response, only: [unauthorise: 3]
 
-  defstruct config_options: nil
+  defstruct config_options: nil, custom_response: nil
 
   alias Plug.Crypto
 
   def init(config_options) do
     %__MODULE__{config_options: config_options}
+  end
+
+  def init(config_options, custom_response) do
+    %__MODULE__{config_options: config_options, custom_response: custom_response}
   end
 
   def respond(conn, ["Basic " <> encoded], options) do
@@ -35,9 +39,9 @@ defmodule BasicAuth.Configured do
     end
   end
 
-  defp send_unauthorised_response(conn, %__MODULE__{config_options: config_options}) do
+  defp send_unauthorised_response(conn, %__MODULE__{config_options: config_options, custom_response: custom_response}) do
     conn
-    |> unauthorise(realm(config_options), custom_response(config_options))
+    |> unauthorise(realm(config_options), custom_response)
     |> Plug.Conn.halt()
   end
 
@@ -53,12 +57,6 @@ defmodule BasicAuth.Configured do
   defp password(config_options), do: credential_part!(config_options, :password)
 
   defp realm(config_options), do: credential_part(config_options, :realm)
-
-  defp custom_response({app, key}) do
-    app
-    |> Application.fetch_env!(key)
-    |> Keyword.get(:custom_response)
-  end
 
   defp credential_part({app, key}, part) do
     app
